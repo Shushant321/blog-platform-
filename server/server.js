@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');  // path module add karna hai
 
 // Load environment variables
 dotenv.config();
@@ -27,7 +28,15 @@ app.use('/api/blogs', require('./routes/blogs'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/comments', require('./routes/comments'));
 
-// Health check endpoint
+// Serve React frontend from dist folder (jo 'src/dist' me hai)
+app.use(express.static(path.join(__dirname, '../src/dist')));
+
+// For all other routes, serve React index.html (React Router support)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../src/dist/index.html'));
+});
+
+// Health check endpoint (agar chahiye to skip kar sakte ho)
 app.get('/api/health', (req, res) => {
   res.json({ message: 'Server is running successfully' });
 });
