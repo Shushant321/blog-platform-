@@ -103,7 +103,7 @@ const EditBlog = () => {
 
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "your_unsigned_upload_preset"); // Cloudinary dashboard se banaya hua preset
+    data.append("upload_preset", "my_unsigned_preset"); // Cloudinary dashboard se banaya hua preset
 
     try {
       const res = await axios.post(
