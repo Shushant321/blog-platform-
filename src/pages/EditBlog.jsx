@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { Save, ArrowLeft, Upload } from 'lucide-react';
-import '../styles/BlogEditor.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { Save, ArrowLeft, Upload } from "lucide-react";
+import "../styles/BlogEditor.css";
 
 const EditBlog = () => {
   const { id } = useParams();
@@ -13,34 +13,50 @@ const EditBlog = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    category: 'technology',
-    tags: '',
-    coverImage: ''
+    title: "",
+    content: "",
+    category: "technology",
+    tags: "",
+    coverImage: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const categories = [
-    'technology', 'lifestyle', 'travel', 'food', 'health', 
-    'business', 'education', 'entertainment', 'sports', 'other'
+    "technology",
+    "lifestyle",
+    "travel",
+    "food",
+    "health",
+    "business",
+    "education",
+    "entertainment",
+    "sports",
+    "other",
   ];
 
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['link', 'image'],
-      ['clean']
+      [{ header: [1, 2, 3, false] }],
+      ["bold", "italic", "underline", "strike"],
+      ["blockquote", "code-block"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      ["link", "image"],
+      ["clean"],
     ],
   };
 
   const formats = [
-    'header', 'bold', 'italic', 'underline', 'strike',
-    'blockquote', 'code-block', 'list', 'bullet',
-    'link', 'image'
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "blockquote",
+    "code-block",
+    "list",
+    "bullet",
+    "link",
+    "image",
   ];
 
   useEffect(() => {
@@ -51,17 +67,17 @@ const EditBlog = () => {
     try {
       const response = await axios.get(`/api/blogs/${id}`);
       const blog = response.data;
-      
+
       setFormData({
         title: blog.title,
         content: blog.content,
         category: blog.category,
-        tags: blog.tags.join(', '),
-        coverImage: blog.coverImage
+        tags: blog.tags.join(", "),
+        coverImage: blog.coverImage,
       });
     } catch (error) {
-      setError('Failed to load blog');
-      console.error('Error fetching blog:', error);
+      setError("Failed to load blog");
+      console.error("Error fetching blog:", error);
     } finally {
       setLoading(false);
     }
@@ -70,14 +86,14 @@ const EditBlog = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleContentChange = (content) => {
     setFormData({
       ...formData,
-      content
+      content,
     });
   };
 
@@ -85,34 +101,45 @@ const EditBlog = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Simple placeholder for image URL - in production, use Cloudinary
-    const imageUrl = URL.createObjectURL(file);
-    setFormData({
-      ...formData,
-      coverImage: imageUrl
-    });
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "your_unsigned_upload_preset"); // Cloudinary dashboard se banaya hua preset
+
+    try {
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/dly1ea4h9/image/upload`,
+        data
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        coverImage: res.data.secure_url,
+      }));
+    } catch (error) {
+      console.error("Image upload failed", error);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setError('');
+    setError("");
 
     try {
       const tagsArray = formData.tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
 
       const blogData = {
         ...formData,
-        tags: tagsArray
+        tags: tagsArray,
       };
 
       await axios.put(`/api/blogs/${id}`, blogData);
       navigate(`/blog/${id}`);
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to update blog');
+      setError(error.response?.data?.message || "Failed to update blog");
     } finally {
       setSaving(false);
     }
@@ -126,10 +153,7 @@ const EditBlog = () => {
     <div className="blog-editor">
       <div className="container">
         <div className="editor-header">
-          <button 
-            onClick={() => navigate(-1)}
-            className="btn btn-outline"
-          >
+          <button onClick={() => navigate(-1)} className="btn btn-outline">
             <ArrowLeft size={20} />
             Back
           </button>
@@ -170,7 +194,7 @@ const EditBlog = () => {
                 required
                 className="category-select"
               >
-                {categories.map(cat => (
+                {categories.map((cat) => (
                   <option key={cat} value={cat}>
                     {cat.charAt(0).toUpperCase() + cat.slice(1)}
                   </option>
@@ -236,13 +260,9 @@ const EditBlog = () => {
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="btn btn-primary"
-            >
+            <button type="submit" disabled={saving} className="btn btn-primary">
               <Save size={20} />
-              {saving ? 'Saving...' : 'Update Blog'}
+              {saving ? "Saving..." : "Update Blog"}
             </button>
           </div>
         </form>
