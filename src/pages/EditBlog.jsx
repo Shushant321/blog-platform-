@@ -100,23 +100,17 @@ const EditBlog = () => {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const data = new FormData();
     data.append("file", file);
-    data.append("upload_preset", "my_unsigned_preset"); // Cloudinary dashboard se banaya hua preset
 
     try {
-      const res = await axios.post(
-        `https://api.cloudinary.com/v1_1/dly1ea4h9/image/upload`,
-        data
-      );
-
+      const res = await axios.post("/api/upload", data);
       setFormData((prev) => ({
         ...prev,
-        coverImage: res.data.secure_url,
+        coverImage: res.data.url,
       }));
     } catch (error) {
-      console.error("Image upload failed", error);
+      console.error("Image upload failed:", error);
     }
   };
 
